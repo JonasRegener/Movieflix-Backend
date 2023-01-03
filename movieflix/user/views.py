@@ -40,13 +40,13 @@ class SignUp(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         serializer = CustomUserSerializer(data=request.data)
         user = CustomUser.objects.create(
-            username = request.POST.get('username'),
-            first_name = request.POST.get('first_name'),
-            last_name = request.POST.get('last_name'),
-            email = request.POST.get('email'),
-            password = request.POST.get('password'),
+            username = request.data.get('username'),
+            first_name = request.data.get('first_name'),
+            last_name = request.data.get('last_name'),
+            email = request.data.get('email'),
+            password = request.data.get('password'),
             )
-        print(serializer)
+
         if serializer.is_valid():
             serializer.save()
             token = Token.objects.get(user=user)
