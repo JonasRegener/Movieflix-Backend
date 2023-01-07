@@ -14,35 +14,39 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include, re_path, reverse_lazy
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
-from user.views import CustomUserViewSet
 from movies.views import MovieViewSet
-from rest_framework.urlpatterns import format_suffix_patterns
 from movies.views import show_movie
-from user.views import UserLogIn, SignUp
-from rest_framework.authtoken.views import obtain_auth_token  # <-- Here
-from django.views.generic.base import RedirectView
-
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
+from user import views
 router = routers.DefaultRouter()
-router.register(r'userAPI', CustomUserViewSet)
 router.register(r'movieAPI', MovieViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
-   
-    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),  # <-- And here
     path('__debug__/', include('debug_toolbar.urls')),
     path('django-rq/', include('django_rq.urls')),
     path('movieST/<str:title>/', show_movie),
-    path('api-user-login/', UserLogIn.as_view()),
-    path('sign-up/', SignUp.as_view()),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    re_path(r'^$', RedirectView.as_view(url=reverse_lazy('api-root'), permanent=False)),
+    path("signup/", views.SignUpView.as_view(), name="signup"),
+    path("login/", views.LoginView.as_view(), name="login"),
+    path("jwt/create/", TokenObtainPairView.as_view(), name="jwt_create"),
+    path("jwt/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("jwt/verify/", TokenVerifyView.as_view(), name="token_verify"),
+   
+    
     # path('login/', views.login),
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 
  # path('api-auth/', include('rest_framework.urls')),
+ #"""  path('api-user-login/', UserLogIn.as_view()),
+ #path('sign-up/', SignUp.as_view()), """
+#""" re_path(r'^$', RedirectView.as_view(url=reverse_lazy('api-root'), permanent=False)), """
+#"""  path('api-auth/', include('rest_framework.urls', namespace='rest_framework')), """
